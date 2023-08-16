@@ -1,5 +1,7 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable class-methods-use-this */
 import { DecoratorNode, LexicalNode, NodeKey } from "lexical";
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 
 function SlashMenuComponent() {
   return (
@@ -43,7 +45,7 @@ export function $createSlashMenuNode(id: string): SlashMenuNode {
 }
 
 export function $isSlashMenuNode(
-  node: LexicalNode | null | undefined,
+  node: LexicalNode | null | undefined
 ): node is SlashMenuNode {
   return node instanceof SlashMenuNode;
 }

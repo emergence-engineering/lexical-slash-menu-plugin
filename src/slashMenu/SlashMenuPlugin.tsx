@@ -1,4 +1,4 @@
-import {
+import React, {
   FC,
   PropsWithChildren,
   ReactNode,
@@ -15,7 +15,12 @@ import {
   KEY_DOWN_COMMAND,
 } from "lexical";
 import { defaultIgnoredKeys, getElementById } from "./utils";
-import { MenuElement, SlashMenuState, SlashMetaTypes } from "./types";
+import {
+  MenuElement,
+  OpeningConditions,
+  SlashMenuState,
+  SlashMetaTypes,
+} from "./types";
 import { getCase, SlashCases } from "./cases";
 import { ListItem } from "./ListItem";
 import {

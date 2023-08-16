@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useEffect } from "react";
-import { MenuElement, SlashMenuState } from "@/features/slashMenuPlugin/types";
+import { MenuElement, SlashMenuState } from "./types";
 
 export const ListItem: FC<{
   menuState: SlashMenuState;

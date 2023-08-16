@@ -1,3 +1,5 @@
+import React from "react";
+
 const HeadingIcon = () => (
   <svg
     fill="#000000"
@@ -106,8 +108,8 @@ const ArrowLeft = () => (
     strokeLinejoin="round"
     className="feather feather-arrow-left"
   >
-    <line x1="19" y1="12" x2="5" y2="12"></line>
-    <polyline points="12 19 5 12 12 5"></polyline>
+    <line x1="19" y1="12" x2="5" y2="12" />
+    <polyline points="12 19 5 12 12 5" />
   </svg>
 );
 const ArrowRight = () => (
@@ -123,8 +125,8 @@ const ArrowRight = () => (
     strokeLinejoin="round"
     className="feather feather-arrow-right"
   >
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-    <polyline points="12 5 19 12 12 19"></polyline>
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
   </svg>
 );
 const CodeIcon = () => (
@@ -140,8 +142,8 @@ const CodeIcon = () => (
     strokeLinejoin="round"
     className="feather feather-code"
   >
-    <polyline points="16 18 22 12 16 6"></polyline>
-    <polyline points="8 6 2 12 8 18"></polyline>
+    <polyline points="16 18 22 12 16 6" />
+    <polyline points="8 6 2 12 8 18" />
   </svg>
 );
 const LinkIcon = () => (
@@ -157,12 +159,13 @@ const LinkIcon = () => (
     strokeLinejoin="round"
     className="feather feather-link-2"
   >
-    <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
-    <line x1="8" y1="12" x2="16" y2="12"></line>
+    <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3" />
+    <line x1="8" y1="12" x2="16" y2="12" />
   </svg>
 );
 
 export const defaultIcons = {
+  HeadingIcon,
   H1Icon,
   H2Icon,
   H3Icon,

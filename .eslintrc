@@ -11,7 +11,13 @@
     "no-plusplus": "off",
     "no-restricted-syntax": "off",
     "prefer-destructuring": "warn",
-    "react/function-component-definition": "off"
+    "react/function-component-definition": "off",
+    "react/jsx-filename-extension": [
+      1,
+      {
+        "extensions": [".tsx", ".jsx"]
+      }
+    ]
   },
   "env": {
     "browser": true
