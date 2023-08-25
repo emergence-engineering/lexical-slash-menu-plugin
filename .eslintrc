@@ -17,7 +17,9 @@
       {
         "extensions": [".tsx", ".jsx"]
       }
-    ]
+    ],
+    "react/require-default-props": "off",
+    "@typescript-eslint/no-unused-vars": "warn"
   },
   "env": {
     "browser": true

@@ -1,3 +1,11 @@
+import {
+  $getSelection,
+  $isRangeSelection,
+  $getRoot,
+  $isParagraphNode,
+  $isRootNode,
+} from "lexical";
+
 import { getElementById } from "./utils";
 import { OpeningConditions, SlashMenuState } from "./types";
 
@@ -13,77 +21,64 @@ export enum SlashCases {
   Ignore = "Ignore",
   Catch = "Catch",
 }
-// const defaultConditions = (openInSelection = false): OpeningConditions => {
-//   return {
-//     shouldOpen: (
-//       state: SlashMenuState,
-//       event: KeyboardEvent,
-//       view: EditorView
-//     ) => {
-//       const editorState = view.state;
-//       const resolvedPos =
-//         editorState.selection.from < 0 ||
-//         editorState.selection.from > editorState.doc.content.size
-//           ? null
-//           : editorState.doc.resolve(editorState.selection.from);
-//
-//       const parentNode = resolvedPos?.parent;
-//       const inParagraph = parentNode?.type.name === "paragraph";
-//       const inEmptyPar = inParagraph && parentNode?.nodeSize === 2;
-//       const posInLine = editorState.selection.$head.parentOffset;
-//       const prevCharacter =
-//         editorState.selection.$head.parent.textContent.slice(
-//           posInLine - 1,
-//           posInLine
-//         );
-//       const spaceBeforePos =
-//         prevCharacter === " " || prevCharacter === "" || prevCharacter === " ";
-//       return (
-//         !state.open &&
-//         event.key === "/" &&
-//         inParagraph &&
-//         (inEmptyPar ||
-//           spaceBeforePos ||
-//           (editorState.selection.from !== editorState.selection.to &&
-//             openInSelection))
-//       );
-//     },
-//     shouldClose: (state: SlashMenuState, event: KeyboardEvent) =>
-//       state.open &&
-//       (event.key === "/" ||
-//         event.key === "Escape" ||
-//         event.key === "Backspace") &&
-//       state.filter.length === 0,
-//   };
-// };
 
-//TODO: this is a temporary function use original ported to Lexical for production
-const shouldOpenTEMP = (event: KeyboardEvent, state: SlashMenuState): boolean =>
-  event.code === "Slash" && !state.open;
+const defaultConditions = (openInSelection = false): OpeningConditions => {
+  return {
+    shouldOpen: (state: SlashMenuState, event: KeyboardEvent) => {
+      const selection = $getSelection();
+      if (!$isRangeSelection(selection)) {
+        return false;
+      }
+      const to = selection.anchor.offset;
+      const from = selection.focus.offset;
+      const docSize = $getRoot().getTextContentSize();
 
-//TODO: this is a temporary function use original ported to Lexical for production
-const shouldCloseTEMP = (
-  event: KeyboardEvent,
-  state: SlashMenuState,
-): boolean => event.code === "Slash" && state.open;
+      const node = selection.getNodes()?.[0];
+      const textContent = node?.getTextContent() || "";
+      const parentNode = node.getParent();
+      const inParagraph = $isParagraphNode(parentNode);
+      const inRoot = $isRootNode(parentNode);
+      // const inEmptyPar =
+      //   (inParagraph || inRoot) && (parentNode?.getTextContentSize() || 0) > 0;
+
+      const pos = from < 0 || from > docSize ? null : from;
+      const prevCharacter = pos ? textContent.slice(pos - 1, pos) : null;
+
+      const spaceBeforePos =
+        prevCharacter === " " || prevCharacter === "" || prevCharacter === " ";
+
+      return (
+        !state.open &&
+        event.key === "/" &&
+        (inParagraph || inRoot) &&
+        (spaceBeforePos || inRoot || (from !== to && openInSelection))
+      );
+    },
+    shouldClose: (state: SlashMenuState, event: KeyboardEvent) =>
+      state.open &&
+      (event.key === "/" ||
+        event.key === "Escape" ||
+        event.key === "Backspace") &&
+      state.filter.length === 0,
+  };
+};
 
 export const getCase = (
   state: SlashMenuState,
   event: KeyboardEvent,
-  // view: EditorView,
   ignoredKeys: string[],
-  // customConditions?: OpeningConditions,
-  // shouldOpenInSelection?: boolean,
+  customConditions?: OpeningConditions,
+  shouldOpenInSelection?: boolean
 ): SlashCases => {
-  // const condition =
-  //   customConditions || defaultConditions(shouldOpenInSelection);
+  const condition =
+    customConditions || defaultConditions(shouldOpenInSelection);
+
   const selected = getElementById(state.selected, state);
-  // if (condition.shouldOpen(state, event, view)) {
-  if (shouldOpenTEMP(event, state)) {
+
+  if (condition.shouldOpen(state, event)) {
     return SlashCases.OpenMenu;
   }
-  // if (condition.shouldClose(state, event, view)) {
-  if (shouldCloseTEMP(event, state)) {
+  if (condition.shouldClose(state, event)) {
     return SlashCases.CloseMenu;
   }
   if (state.open) {

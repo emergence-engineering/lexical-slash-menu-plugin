@@ -82,6 +82,7 @@ export const SELECT_PREV_ITEM = (state: SlashMenuState) => {
   if (!prevId) return state;
   return { ...state, selected: prevId };
 };
+
 export const OPEN_SLASH_MENU =
   (domRect: DOMRect) =>
   (state: SlashMenuState): SlashMenuState => ({
@@ -89,41 +90,38 @@ export const OPEN_SLASH_MENU =
     open: true,
     domRect,
   });
+
 export const CLOSE_SLASH_MENU =
   (event: KeyboardEvent) =>
   (state: SlashMenuState): SlashMenuState => {
-    {
-      const { subMenuId } = state;
+    const { subMenuId } = state;
 
-      if (subMenuId) {
-        const submenu = getElementById(
-          subMenuId,
-          state.initialState
-        ) as SubMenu;
-        const callback = submenu?.callbackOnClose;
-        if (!submenu?.locked) {
-          if (callback) {
-            callback();
-          }
-          const meta = {
-            type: SlashMetaTypes.closeSubMenu,
-            element: getElementById(subMenuId, state.initialState),
-          };
-          return CLOSE_SUBMENU(state, meta);
+    if (subMenuId) {
+      const submenu = getElementById(subMenuId, state.initialState) as SubMenu;
+      const callback = submenu?.callbackOnClose;
+      if (!submenu?.locked) {
+        if (callback) {
+          callback();
         }
-        return CLOSE_WHOLE_MENU(state);
-      }
-      if (event.key === "/") {
-        return CLOSE_WHOLE_MENU(state);
-        // view.dispatch(
-        //   editorstate.tr.inserttext("/").setmeta(slashmenukey, {
-        //     type: slashmetatypes.close,
-        //   }),
-        // );
+        const meta = {
+          type: SlashMetaTypes.closeSubMenu,
+          element: getElementById(subMenuId, state.initialState),
+        };
+        return CLOSE_SUBMENU(state, meta);
       }
       return CLOSE_WHOLE_MENU(state);
     }
+    if (event.key === "/") {
+      return CLOSE_WHOLE_MENU(state);
+      // view.dispatch(
+      //   editorstate.tr.inserttext("/").setmeta(slashmenukey, {
+      //     type: slashmetatypes.close,
+      //   }),
+      // );
+    }
+    return CLOSE_WHOLE_MENU(state);
   };
+
 export const RESET_STATE = (state: SlashMenuState): SlashMenuState => {
   return {
     initialState: state.initialState,
@@ -146,6 +144,7 @@ export const ADD_FILTER_CHARACTER =
       filter: newFilter || "",
     };
   };
+
 export const REMOVE_LAST_FILTER_CHARACTER = (
   state: SlashMenuState
 ): SlashMenuState => {

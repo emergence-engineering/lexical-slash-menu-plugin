@@ -14,42 +14,59 @@ export const getAllElementIds = (config: BaseSlashMenuState) =>
 
 export const hasDuplicateIds = (config: BaseSlashMenuState): boolean => {
   const ids = getAllElementIds(config);
+
   return ids.length !== new Set(ids).size;
 };
+
 const getElements = (item: MenuElement): MenuElement[] => {
-  if (item.type === "submenu")
+  if (item.type === "submenu") {
     return [item, ...item.elements.map((item) => getElements(item))].flat();
+  }
+
   return [item];
 };
+
 export const getAllElements = (state: BaseSlashMenuState) =>
   state.elements.map((element) => getElements(element)).flat();
 
 export const getElementById = (id: ItemId, state: BaseSlashMenuState) => {
   return getAllElements(state).find((element) => element.id === id);
 };
+
 export const findParent = (
   id: ItemId,
   elements: MenuElement[],
   subMenu: ItemId | "root" = "root"
 ): ItemId | "root" => {
   let parentId: ItemId = "root";
+
   elements.forEach((item) => {
     if (item.type === "submenu") {
-      if (item.id === id) parentId = subMenu;
+      if (item.id === id) {
+        parentId = subMenu;
+      }
       const elementIds = item.elements.map((item) => item.id);
       if (elementIds.includes(id)) {
         parentId = item.id;
-      } else parentId = findParent(id, item.elements, item.id);
+      } else {
+        parentId = findParent(id, item.elements, item.id);
+      }
     }
-    if (item.id === id) parentId = subMenu;
+
+    if (item.id === id) {
+      parentId = subMenu;
+    }
   });
+
   return parentId;
 };
+
 export const getNextItemId = (
   state: BaseSlashMenuState
 ): ItemId | undefined => {
   const parentId = findParent(state.selected, state.filteredElements);
   const parent = getElementById(parentId, state);
+
   if (parentId === "root") {
     const nextItemIndex =
       state.filteredElements.findIndex(
@@ -59,6 +76,7 @@ export const getNextItemId = (
       return state.filteredElements[nextItemIndex].id;
     }
   }
+
   if (parent && parent.type === "submenu") {
     const nextItemIndex =
       parent.elements.findIndex((element) => element.id === state.selected) + 1;
@@ -66,12 +84,16 @@ export const getNextItemId = (
       return parent.elements[nextItemIndex].id;
     }
   }
+
+  return undefined;
 };
+
 export const getPreviousItemId = (
   state: BaseSlashMenuState
 ): ItemId | undefined => {
   const parentId = findParent(state.selected, state.filteredElements);
   const parent = getElementById(parentId, state);
+
   if (parentId === "root") {
     const prevItemIndex =
       state.filteredElements.findIndex(
@@ -81,6 +103,7 @@ export const getPreviousItemId = (
       return state.filteredElements[prevItemIndex].id;
     }
   }
+
   if (parent && parent.type === "submenu") {
     const prevItemIndex =
       parent.elements.findIndex((element) => element.id === state.selected) - 1;
@@ -88,16 +111,20 @@ export const getPreviousItemId = (
       return parent.elements[prevItemIndex].id;
     }
   }
+
+  return undefined;
 };
 
 export const getFilteredItems = (state: BaseSlashMenuState, input: string) => {
   const regExp = new RegExp(`${input.toLowerCase().replace(/\s/g, "\\s")}`);
+
   if (state.subMenuId && state.subMenuId !== "root") {
     const submenu = getElementById(state.subMenuId, state) as SubMenu;
     return submenu.elements.filter(
       (element) => element.label.toLowerCase().match(regExp) !== null
     );
   }
+
   return state.elements.filter(
     (element) =>
       element.label.toLowerCase().match(regExp) !== null && !element.locked

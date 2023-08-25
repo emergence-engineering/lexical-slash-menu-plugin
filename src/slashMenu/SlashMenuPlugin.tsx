@@ -11,6 +11,7 @@ import React, {
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
   $getSelection,
+  $isParagraphNode,
   COMMAND_PRIORITY_CRITICAL,
   KEY_DOWN_COMMAND,
 } from "lexical";
@@ -38,17 +39,19 @@ import { defaultIcons } from "./icons";
 const Root = ({
   domRect,
   children,
-}: PropsWithChildren<{ domRect: DOMRect }>) => (
-  <div
-    style={{
-      top: domRect.y + domRect.height,
-      left: domRect.left + domRect.width,
-      position: "fixed",
-    }}
-  >
-    {children}
-  </div>
-);
+}: PropsWithChildren<{ domRect: DOMRect }>) => {
+  return (
+    <div
+      style={{
+        top: domRect.y + domRect.height,
+        left: domRect.left + domRect.width,
+        position: "fixed",
+      }}
+    >
+      {children}
+    </div>
+  );
+};
 
 interface SlashMenuViewProps {
   // editorState: EditorState;
@@ -77,7 +80,7 @@ interface SlashMenuStateProps {
 
 interface SlashMenuProps extends SlashMenuViewProps, SlashMenuStateProps {}
 
-interface SlashMenuAction {
+export interface SlashMenuAction {
   type: SlashMetaTypes;
 }
 
@@ -141,12 +144,20 @@ export function SlashMenuPlugin({
             const selection = $getSelection();
             const nodes = selection?.getNodes();
             const currentNode = nodes?.[0];
-            if (!currentNode) return false;
+            if (!currentNode) {
+              return false;
+            }
             const currentNodeDOMElement = editor.getElementByKey(
               currentNode.getKey()
             );
-            const clientRect = currentNodeDOMElement?.getBoundingClientRect();
-            clientRect && setSlashMenuState(OPEN_SLASH_MENU(clientRect));
+
+            const clientRect = $isParagraphNode(currentNode)
+              ? currentNodeDOMElement?.children[0]?.getBoundingClientRect()
+              : currentNodeDOMElement?.getBoundingClientRect();
+
+            if (clientRect) {
+              setSlashMenuState(OPEN_SLASH_MENU(clientRect));
+            }
             return true;
           }
           case SlashCases.CloseMenu:
@@ -205,8 +216,11 @@ export function SlashMenuPlugin({
   }, [editor, slashMenuState]);
 
   console.log("STATE", slashMenuState);
+
   const elements = useMemo(() => {
-    if (!slashMenuState) return;
+    if (!slashMenuState) {
+      return null;
+    }
 
     return slashMenuState.filteredElements;
   }, [slashMenuState]);
@@ -226,6 +240,8 @@ export function SlashMenuPlugin({
     if (slashMenuState?.subMenuId) {
       return getElementById(slashMenuState.subMenuId, slashMenuState)?.label;
     }
+
+    return null;
   }, [slashMenuState]);
 
   if (slashMenuState.domRect) {
@@ -259,6 +275,7 @@ export function SlashMenuPlugin({
                   className="menu-element-wrapper"
                   onClick={clickable ? closeSubMenu : undefined}
                   style={{ cursor: clickable ? "pointer" : undefined }}
+                  role="presentation"
                 >
                   <div className="menu-element-icon-left">
                     {subMenuIcon || defaultIcons.ArrowLeft()}
