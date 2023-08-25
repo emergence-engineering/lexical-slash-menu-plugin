@@ -1,3 +1,5 @@
+import { LexicalEditor } from "lexical";
+
 export enum SlashMetaTypes {
   open = "open",
   close = "close",
@@ -21,7 +23,7 @@ export type MenuItem = {
 
 export interface CommandItem extends MenuItem {
   type: "command";
-  // command: (view: EditorView) => void;
+  command: (editor: LexicalEditor) => void;
 }
 
 // eslint-disable-next-line no-use-before-define

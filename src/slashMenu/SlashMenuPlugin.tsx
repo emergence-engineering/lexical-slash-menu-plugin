@@ -141,6 +141,7 @@ export function SlashMenuPlugin({
         console.log("CASE", slashCase);
         switch (slashCase) {
           case SlashCases.OpenMenu: {
+            keyboardEvent.preventDefault();
             const selection = $getSelection();
             const nodes = selection?.getNodes();
             const currentNode = nodes?.[0];
@@ -170,11 +171,12 @@ export function SlashMenuPlugin({
               slashMenuState.selected,
               slashMenuState
             );
-            if (!menuElement) return false;
+            if (!menuElement) {
+              return false;
+            }
             if (menuElement.type === "command") {
               setSlashMenuState(RESET_STATE);
-              // TODO
-              // menuElement.command(view);
+              menuElement.command(editor);
             }
             if (menuElement.type === "submenu") {
               const meta = {

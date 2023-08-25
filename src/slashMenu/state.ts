@@ -113,11 +113,6 @@ export const CLOSE_SLASH_MENU =
     }
     if (event.key === "/") {
       return CLOSE_WHOLE_MENU(state);
-      // view.dispatch(
-      //   editorstate.tr.inserttext("/").setmeta(slashmenukey, {
-      //     type: slashmetatypes.close,
-      //   }),
-      // );
     }
     return CLOSE_WHOLE_MENU(state);
   };
