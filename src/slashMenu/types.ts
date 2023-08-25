@@ -33,7 +33,7 @@ export interface SubMenu extends MenuItem {
   callbackOnClose?: () => void;
 }
 
-//TODO: compose types instead of Omit<>
+// TODO: compose types instead of Omit<>
 
 // It wast SlashMenuState in prosemirror-slash-menu
 // I renamed it because Lexical the whole thing will be 1 package
@@ -68,14 +68,6 @@ export interface SlashMenuMeta {
   filter?: string;
 }
 export interface OpeningConditions {
-  shouldOpen: (
-    state: SlashMenuState,
-    event: KeyboardEvent,
-    // view: EditorView,
-  ) => boolean;
-  shouldClose: (
-    state: SlashMenuState,
-    event: KeyboardEvent,
-    // view: EditorView,
-  ) => boolean;
+  shouldOpen: (state: SlashMenuState, event: KeyboardEvent) => boolean;
+  shouldClose: (state: SlashMenuState, event: KeyboardEvent) => boolean;
 }

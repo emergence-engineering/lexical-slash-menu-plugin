@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect } from "react";
+import React, { FC, useEffect } from "react";
 import { MenuElement, SlashMenuState } from "./types";
 
 export const ListItem: FC<{
@@ -45,13 +45,13 @@ export const ListItem: FC<{
       // onClick={handleOnClick}
     >
       {Icon ? (
-        <div className={"menu-element-icon"}>
+        <div className="menu-element-icon">
           <Icon />
         </div>
       ) : null}
-      <div className={"menu-element-label"}>{el.label}</div>
+      <div className="menu-element-label">{el.label}</div>
       {RightIcon ? (
-        <div className={"menu-element-right-icon"}>
+        <div className="menu-element-right-icon">
           <RightIcon />
         </div>
       ) : null}
