@@ -1,10 +1,10 @@
 import React, { FC, useEffect } from "react";
+
 import { MenuElement, SlashMenuState } from "./types";
 
 export const ListItem: FC<{
   menuState: SlashMenuState;
   el: MenuElement;
-  // view: EditorView;
   idx: number;
   Icon?: FC;
   RightIcon?: FC;
@@ -21,20 +21,7 @@ export const ListItem: FC<{
       element.classList.remove("menu-element-selected");
     }
   }, [menuState.selected]);
-  // const handleOnClick = useCallback(() => {
-  //   if (el.type === "command") {
-  //     dispatchWithMeta(view, SlashMenuKey, {
-  //       type: SlashMetaTypes.execute,
-  //     });
-  //     el.command(view);
-  //   }
-  //   if (el.type === "submenu") {
-  //     dispatchWithMeta(view, SlashMenuKey, {
-  //       type: SlashMetaTypes.openSubMenu,
-  //       element: el,
-  //     });
-  //   }
-  // }, [el]);
+
   return (
     <div
       className={
@@ -42,7 +29,6 @@ export const ListItem: FC<{
       }
       id={el.id}
       key={`${el.id}-${idx}`}
-      // onClick={handleOnClick}
     >
       {Icon ? (
         <div className="menu-element-icon">
