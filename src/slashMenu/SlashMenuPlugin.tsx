@@ -8,13 +8,16 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { computePosition, flip, offset, shift } from "@floating-ui/react-dom";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
   $getSelection,
+  $isRangeSelection,
   $isParagraphNode,
   COMMAND_PRIORITY_CRITICAL,
   KEY_DOWN_COMMAND,
 } from "lexical";
+
 import { defaultIgnoredKeys, getElementById } from "./utils";
 import {
   MenuElement,
@@ -36,26 +39,28 @@ import {
 } from "./state";
 import { defaultIcons } from "./icons";
 
-const Root = ({
-  domRect,
-  children,
-}: PropsWithChildren<{ domRect: DOMRect }>) => {
-  return (
-    <div
-      style={{
-        top: domRect.y + domRect.height,
-        left: domRect.left + domRect.width,
-        position: "fixed",
-      }}
-    >
-      {children}
-    </div>
-  );
-};
+export function getDOMRangeRect(
+  nativeSelection: Selection,
+  rootElement: HTMLElement
+): DOMRect {
+  const domRange = nativeSelection.getRangeAt(0);
+
+  let rect;
+
+  if (nativeSelection.anchorNode === rootElement) {
+    let inner = rootElement;
+    while (inner.firstElementChild != null) {
+      inner = inner.firstElementChild as HTMLElement;
+    }
+    rect = inner.getBoundingClientRect();
+  } else {
+    rect = domRange.getBoundingClientRect();
+  }
+
+  return rect;
+}
 
 interface SlashMenuViewProps {
-  // editorState: EditorState;
-  // editorView: EditorView;
   icons?: {
     [key: string]: FC;
   };
@@ -67,7 +72,6 @@ interface SlashMenuViewProps {
   filterPlaceHolder?: string;
   mainMenuLabel?: string;
   popperReference?: HTMLElement;
-  // popperOptions?: PopperOptions;
   clickable?: boolean;
 }
 
@@ -104,8 +108,6 @@ export function SlashMenuPlugin({
   ignoredKeys,
   customConditions,
   openInSelection,
-  // editorState,
-  // editorView,
   icons,
   rightIcons,
   subMenuIcon,
@@ -127,6 +129,8 @@ export function SlashMenuPlugin({
       };
     }
   );
+
+  const [rect, setRect] = useState<Element | null | undefined>(undefined);
 
   useEffect(() => {
     if (!editor) return () => undefined;
@@ -155,6 +159,44 @@ export function SlashMenuPlugin({
             const clientRect = $isParagraphNode(currentNode)
               ? currentNodeDOMElement?.children[0]?.getBoundingClientRect()
               : currentNodeDOMElement?.getBoundingClientRect();
+
+            setRect(() => {
+              const domEl = $isParagraphNode(currentNode)
+                ? currentNodeDOMElement?.children?.[0]
+                : currentNodeDOMElement;
+
+              if (!domEl || !$isRangeSelection(selection)) {
+                return undefined;
+              }
+
+              const rootElement = editor.getRootElement();
+              const rangeRect = getDOMRangeRect(
+                window.getSelection() as Selection,
+                rootElement as HTMLElement
+              );
+
+              const { bottom, height, left, right, top, width, x, y } =
+                rangeRect;
+
+              if (rangeRect.width === 0 && rangeRect.height === 0) {
+                return domEl;
+              }
+
+              return {
+                getBoundingClientRect() {
+                  return {
+                    bottom,
+                    height,
+                    left,
+                    right,
+                    top,
+                    width,
+                    x,
+                    y,
+                  };
+                },
+              } as Element;
+            });
 
             if (clientRect) {
               setSlashMenuState(OPEN_SLASH_MENU(clientRect));
@@ -246,71 +288,88 @@ export function SlashMenuPlugin({
     return null;
   }, [slashMenuState]);
 
-  if (slashMenuState.domRect) {
-    return (
-      <Root domRect={slashMenuState.domRect}>
-        {slashMenuState?.open ? (
-          <div>
-            {slashMenuState.filter ? (
-              <div className="menu-filter-wrapper">
-                {filterFieldIcon ? (
-                  <div className="menu-filter-icon">{filterFieldIcon}</div>
-                ) : null}
-                <div id="menu-filter" className="menu-filter">
-                  {slashMenuState.filter}
-                </div>
-              </div>
-            ) : (
-              <div className="menu-filter-wrapper">
-                {filterFieldIcon ? (
-                  <div className="menu-filter-icon">{filterFieldIcon}</div>
-                ) : null}
-                <div className="menu-filter-placeholder">
-                  {filterPlaceHolder}
-                </div>
-              </div>
-            )}
+  useEffect(() => {
+    if (!rect) {
+      return;
+    }
+    const floating = document.getElementById("floating") as HTMLElement;
 
-            <div id="slashDisplay" ref={rootRef} className="menu-display-root">
-              {slashMenuState.subMenuId ? (
-                <div
-                  className="menu-element-wrapper"
-                  onClick={clickable ? closeSubMenu : undefined}
-                  style={{ cursor: clickable ? "pointer" : undefined }}
-                  role="presentation"
-                >
-                  <div className="menu-element-icon-left">
-                    {subMenuIcon || defaultIcons.ArrowLeft()}
-                  </div>
-                  <div className="submenu-label">{subMenuLabel}</div>
-                </div>
-              ) : null}
-              {!slashMenuState.subMenuId && mainMenuLabel ? (
-                <div className="menu-element-wrapper">
-                  <div className="submenu-label">{mainMenuLabel}</div>
-                </div>
-              ) : null}
-              {elements?.map((el, idx) => (
-                <ListItem
-                  key={el.id}
-                  menuState={slashMenuState}
-                  Icon={icons?.[el.id]}
-                  RightIcon={rightIcons?.[el.id]}
-                  idx={idx}
-                  clickable={clickable}
-                  el={el}
-                  // view={editorView}
-                />
-              ))}
-              {elements?.length === 0 ? (
-                <div className="menu-placeholder">No matching items</div>
-              ) : null}
+    computePosition(rect, floating, {
+      placement: "right-start",
+      middleware: [offset(5), flip(), shift()],
+    }).then(({ x, y }) => {
+      Object.assign(floating.style, {
+        top: `${y + 20}px`,
+        left: `${x}px`,
+      });
+    });
+  }, [rect]);
+
+  return (
+    <div
+      id="floating"
+      style={{
+        display: slashMenuState.open ? "block" : "none",
+        position: "absolute",
+        width: "200px",
+        height: "150px",
+      }}
+    >
+      {slashMenuState.open &&
+      slashMenuState.domRect &&
+      slashMenuState.filter ? (
+        <div className="menu-filter-wrapper">
+          {filterFieldIcon ? (
+            <div className="menu-filter-icon">{filterFieldIcon}</div>
+          ) : null}
+          <div id="menu-filter" className="menu-filter">
+            {slashMenuState.filter}
+          </div>
+        </div>
+      ) : (
+        <div className="menu-filter-wrapper">
+          {filterFieldIcon ? (
+            <div className="menu-filter-icon">{filterFieldIcon}</div>
+          ) : null}
+          <div className="menu-filter-placeholder">{filterPlaceHolder}</div>
+        </div>
+      )}
+
+      <div id="slashDisplay" ref={rootRef} className="menu-display-root">
+        {slashMenuState.subMenuId ? (
+          <div
+            className="menu-element-wrapper"
+            onClick={clickable ? closeSubMenu : undefined}
+            style={{ cursor: clickable ? "pointer" : undefined }}
+            role="presentation"
+          >
+            <div className="menu-element-icon-left">
+              {subMenuIcon || defaultIcons.ArrowLeft()}
             </div>
+            <div className="submenu-label">{subMenuLabel}</div>
           </div>
         ) : null}
-      </Root>
-    );
-  }
-
-  return null;
+        {!slashMenuState.subMenuId && mainMenuLabel ? (
+          <div className="menu-element-wrapper">
+            <div className="submenu-label">{mainMenuLabel}</div>
+          </div>
+        ) : null}
+        {elements?.map((el, idx) => (
+          <ListItem
+            key={el.id}
+            menuState={slashMenuState}
+            Icon={icons?.[el.id]}
+            RightIcon={rightIcons?.[el.id]}
+            idx={idx}
+            clickable={clickable}
+            el={el}
+            // view={editorView}
+          />
+        ))}
+        {elements?.length === 0 ? (
+          <div className="menu-placeholder">No matching items</div>
+        ) : null}
+      </div>
+    </div>
+  );
 }
