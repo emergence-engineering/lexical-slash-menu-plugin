@@ -17,7 +17,6 @@ export type MenuItem = {
   id: ItemId;
   label: string;
   type: ItemType;
-  // available: (view: EditorView) => boolean;
   locked?: boolean;
 };
 
@@ -35,22 +34,19 @@ export interface SubMenu extends MenuItem {
   callbackOnClose?: () => void;
 }
 
-// TODO: compose types instead of Omit<>
+export interface InitialState {
+  selected: ItemId;
+  filteredElements: MenuElement[];
+  open: boolean;
+  subMenuId?: ItemId;
+  filter: string;
+  elements: MenuElement[];
+  ignoredKeys: string[];
+  callbackOnClose?: () => void;
+  domRect: undefined;
+}
 
-// It wast SlashMenuState in prosemirror-slash-menu
-// I renamed it because Lexical the whole thing will be 1 package
-export type SlashMenuState = {
-  initialState: {
-    selected: ItemId;
-    filteredElements: MenuElement[];
-    open: boolean;
-    subMenuId?: ItemId;
-    filter: string;
-    elements: MenuElement[];
-    ignoredKeys: string[];
-    callbackOnClose?: () => void;
-    domRect: undefined;
-  };
+export interface BaseSlashMenuState {
   selected: ItemId;
   filteredElements: MenuElement[];
   open: boolean;
@@ -60,9 +56,15 @@ export type SlashMenuState = {
   ignoredKeys: string[];
   callbackOnClose?: () => void;
   domRect: DOMRect | undefined;
-};
+}
 
-export type BaseSlashMenuState = Omit<SlashMenuState, "initialState">;
+// It wast SlashMenuState in prosemirror-slash-menu
+// I renamed it because Lexical the whole thing will be 1 package
+export interface SlashMenuState extends BaseSlashMenuState {
+  initialState: InitialState;
+}
+
+// export type BaseSlashMenuState = Omit<SlashMenuState, "initialState">;
 
 export interface SlashMenuMeta {
   type: SlashMetaTypes;

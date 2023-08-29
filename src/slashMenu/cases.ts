@@ -38,8 +38,6 @@ const defaultConditions = (openInSelection = false): OpeningConditions => {
       const parentNode = node.getParent();
       const inParagraph = $isParagraphNode(parentNode);
       const inRoot = $isRootNode(parentNode);
-      // const inEmptyPar =
-      //   (inParagraph || inRoot) && (parentNode?.getTextContentSize() || 0) > 0;
 
       const pos = from < 0 || from > docSize ? null : from;
       const prevCharacter = pos ? textContent.slice(pos - 1, pos) : null;

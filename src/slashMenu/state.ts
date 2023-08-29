@@ -22,6 +22,7 @@ export const CLOSE_WHOLE_MENU = (state: SlashMenuState): SlashMenuState => {
     ...state.initialState,
   };
 };
+
 export const OPEN_SUB_MENU =
   (meta: SlashMenuMeta) =>
   (state: SlashMenuState): SlashMenuState => {
