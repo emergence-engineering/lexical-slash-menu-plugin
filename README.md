@@ -1,6 +1,6 @@
-# lexical-link-preview-react
+# lexical-slash-menu-plugin
 
-![made by Emergence Engineering](https://emergence-engineering.com/ee-logo.svg)
+[![made by Emergence Engineering](https://emergence-engineering.com/ee-logo.svg)](https://emergence-engineering.com)
 
 [**Made by Emergence-Engineering**](https://emergence-engineering.com/)
 
@@ -115,7 +115,7 @@ export function SlashMenuPlugins(
 the plugin uses [`floating-ui`](https://floating-ui.com/) for positioning the menu element
 
 - `floatingReference?: HTMLElement` for custom menu element positioning
-- `floatingOptions?: Partial<ComputePositionConfig>`for overriding our `floating-ui` options
+- `floatingOptions?: Partial<ComputePositionConfig>` for overriding our `floating-ui` options
 
 ### Overriding `customConditions`
 
