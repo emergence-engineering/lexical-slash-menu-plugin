@@ -9,7 +9,18 @@ export const ListItem: FC<{
   Icon?: FC;
   RightIcon?: FC;
   clickable?: boolean;
-}> = ({ menuState, el, Icon, idx, clickable, RightIcon }) => {
+  handleClick: (id: string) => void;
+  setSelectedItemId: (id: string) => void;
+}> = ({
+  menuState,
+  el,
+  Icon,
+  idx,
+  clickable,
+  RightIcon,
+  handleClick,
+  setSelectedItemId,
+}) => {
   useEffect(() => {
     const element = document.getElementById(el.id);
     if (!element) return;
@@ -29,6 +40,9 @@ export const ListItem: FC<{
       }
       id={el.id}
       key={`${el.id}-${idx}`}
+      onClick={() => handleClick(el.id)}
+      role="presentation"
+      onMouseEnter={() => setSelectedItemId(el.id)}
     >
       {Icon ? (
         <div className="menu-element-icon">

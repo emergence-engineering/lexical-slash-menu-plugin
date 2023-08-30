@@ -72,6 +72,10 @@ export const CLOSE_SUBMENU = (
   return state;
 };
 
+export const SET_SELECTED_ITEM_ID = (id: string) => (state: SlashMenuState) => {
+  return { ...state, selected: id };
+};
+
 export const SELECT_NEXT_ITEM = (state: SlashMenuState) => {
   const nextId = getNextItemId(state);
   if (!nextId) return state;
@@ -93,7 +97,7 @@ export const OPEN_SLASH_MENU =
   });
 
 export const CLOSE_SLASH_MENU =
-  (event: KeyboardEvent) =>
+  (event?: KeyboardEvent) =>
   (state: SlashMenuState): SlashMenuState => {
     const { subMenuId } = state;
 
@@ -112,7 +116,7 @@ export const CLOSE_SLASH_MENU =
       }
       return CLOSE_WHOLE_MENU(state);
     }
-    if (event.key === "/") {
+    if (event?.key === "/") {
       return CLOSE_WHOLE_MENU(state);
     }
     return CLOSE_WHOLE_MENU(state);
