@@ -61,13 +61,14 @@ export function SlashMenuPlugin({
 }: PropsWithChildren<SlashMenuProps>) {
   const [editor] = useLexicalComposerContext();
 
-  const { slashMenuState, rect } = useRegisterKeydown(
-    editor,
-    menuElements,
-    ignoredKeys,
-    customConditions,
-    openInSelection
-  );
+  const { slashMenuState, rect, handleClick, handleClose, setSelectedItemId } =
+    useRegisterKeydown(
+      editor,
+      menuElements,
+      ignoredKeys,
+      customConditions,
+      openInSelection
+    );
 
   useFloating(rect as Element, floatingReference, floatingOptions);
 
@@ -130,7 +131,7 @@ export function SlashMenuPlugin({
         {slashMenuState.subMenuId ? (
           <div
             className="menu-element-wrapper"
-            onClick={clickable ? closeSubMenu : undefined}
+            onClick={clickable ? handleClose : undefined}
             style={{ cursor: clickable ? "pointer" : undefined }}
             role="presentation"
           >
@@ -147,6 +148,8 @@ export function SlashMenuPlugin({
         ) : null}
         {elements?.map((el, idx) => (
           <ListItem
+            setSelectedItemId={setSelectedItemId}
+            handleClick={handleClick}
             key={el.id}
             menuState={slashMenuState}
             Icon={icons?.[el.id]}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   $getSelection,
   $isParagraphNode,
@@ -22,6 +22,7 @@ import {
   REMOVE_LAST_FILTER_CHARACTER,
   SELECT_NEXT_ITEM,
   SELECT_PREV_ITEM,
+  SET_SELECTED_ITEM_ID,
   CLOSE_SLASH_MENU,
   OPEN_SLASH_MENU,
   RESET_STATE,
@@ -192,5 +193,39 @@ export const useRegisterKeydown = (
     );
   }, [editor, slashMenuState]);
 
-  return { slashMenuState, rect };
+  const handleClick = useCallback(
+    (id: string) => {
+      const menuElement = getElementById(id, slashMenuState);
+      if (!menuElement) {
+        return;
+      }
+
+      if (menuElement.type === "command") {
+        setSlashMenuState(RESET_STATE);
+        menuElement.command(editor);
+      }
+
+      if (menuElement.type === "submenu") {
+        const meta = {
+          type: SlashMetaTypes.openSubMenu,
+          element: menuElement,
+        };
+        setSlashMenuState(OPEN_SUB_MENU(meta));
+      }
+    },
+    [editor, slashMenuState]
+  );
+
+  const handleClose = useCallback(() => {
+    setSlashMenuState(CLOSE_SLASH_MENU());
+  }, [editor, slashMenuState]);
+
+  const setSelectedItemId = useCallback(
+    (id: string) => {
+      setSlashMenuState(SET_SELECTED_ITEM_ID(id));
+    },
+    [editor, slashMenuState]
+  );
+
+  return { slashMenuState, rect, handleClick, handleClose, setSelectedItemId };
 };
