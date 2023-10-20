@@ -4,6 +4,8 @@
 
 [**Made by Emergence-Engineering**](https://emergence-engineering.com/)
 
+![](https://emergence-engineering.com/illustrations/slash-menu.gif)
+
 ## Basic usage
 
 - import `SlashMenuPlugin` from `lexical-slash-menu-plugin`
